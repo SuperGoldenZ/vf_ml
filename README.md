@@ -15,6 +15,8 @@ $ curl https://drive.google.com/file/d/1aXf81emse3jqE2f93-b_v-B3tGd2jn3d/view?us
 ```
 
 **2 - Train Using The Data**
-
+```
+$ python demos/train_logic.py --filename="vf_match_data.csv.gz"
+```
 
 **3 - Test The Results**
