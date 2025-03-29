@@ -26,12 +26,12 @@ class DataHelper:
     @staticmethod
     def load_data(filename="vf_match_data.csv"):
         """Load and pre-process the data"""
-        
+
         if ".gz" in filename:
             data = pd.read_csv(filename, compression="gzip")
         elif ".csv" in filename:
             data = pd.read_csv(filename)
-            
+
         data = data[data["Time Remaining When Round Ended"] != "NA"]
         data = data.dropna(subset=["P1 Health"])
         data = data.dropna(subset=["P2 Health"])
@@ -126,13 +126,10 @@ class DataHelper:
 
     @staticmethod
     def create_test_data_frame(
-        frame_data:frame_data.FrameData,
+        frame_data: frame_data.FrameData,
         version=1,
     ):
         """For creating a test frame"""
-
-        if time_remaining is None:
-            time_remaining = 45
 
         if version == 1:
             new_data = pd.DataFrame(
@@ -161,7 +158,7 @@ class DataHelper:
                     "Player 2 Rank": [frame_data.p2_rank],
                     "rank_diff": [frame_data.p1_rank - frame_data.p2_rank],
                     "P1 Rounds Won So Far": [frame_data.p1_rounds_won_so_far],
-                    "P2 Rounds Won So Far": [frame_data.p2_rounds_won_so_far],                    
+                    "P2 Rounds Won So Far": [frame_data.p2_rounds_won_so_far],
                     "Shun.Drinks.1P": [frame_data.p1_drinks],
                     "Shun.Drinks.2P": [frame_data.p2_drinks],
                     "Player 1 Ringname": [frame_data.p1_ringname],
@@ -177,7 +174,7 @@ class DataHelper:
             del new_data["Player 2 Ringname"]
 
         new_data["health_time_interaction"] = [
-           new_data["health_diff"] * (45 - int(frame_data.time_remaining))
+            new_data["health_diff"] * (45 - int(frame_data.time_remaining))
         ]
 
         if version == 2:
