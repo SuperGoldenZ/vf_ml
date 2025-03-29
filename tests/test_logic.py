@@ -1,13 +1,9 @@
 import pytest
-import cv2
 import pandas as pd
-import numpy as np
 import joblib
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, classification_report, brier_score_loss
-
 
 # Encode categorical data
 def encode(data):
