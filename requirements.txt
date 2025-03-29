@@ -2,4 +2,4 @@ flake8
 pytest
 pandas
 joblib
-sklearn
+scikit-learn
