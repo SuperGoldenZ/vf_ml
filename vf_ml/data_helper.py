@@ -1,7 +1,7 @@
 """Class for processing VF data for machine learning"""
 
 import pandas as pd
-import frame_data
+from vf_ml import frame_data
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -14,13 +14,6 @@ class DataHelper:
         label_encoder = LabelEncoder()
         data["Stage_encoded"] = label_encoder.fit_transform(data["Stage"])
 
-        if version == 2:
-            data["Player 1 Ringname Encoded"] = label_encoder.fit_transform(
-                data["Player 1 Ringname"]
-            )
-            data["Player 2 Ringname Encoded"] = label_encoder.fit_transform(
-                data["Player 2 Ringname"]
-            )
         return data
 
     @staticmethod
@@ -85,17 +78,17 @@ class DataHelper:
                     "P1 Health",
                     "P2 Health",
                     "health_diff",
-                    "Time Remaining When Round Ended",
-                    "Player 1 Rank",
-                    "Player 2 Rank",
+                    # "Time Remaining When Round Ended",
+                    # "Player 1 Rank",
+                    # "Player 2 Rank",
                     "rank_diff",
                     "P1 Rounds Won So Far",
                     "P2 Rounds Won So Far",
                     "Shun.Drinks.1P",
                     "Shun.Drinks.2P",
                     "Stage_encoded",
-                    "Player 1 Ringname Encoded",
-                    "Player 2 Ringname Encoded",
+                    # "Player 1 Ringname Encoded",
+                    # "Player 2 Ringname Encoded",
                     "health_time_interaction",
                     "p1_drinks_time",
                     "p2_drinks_time",
@@ -125,7 +118,7 @@ class DataHelper:
         ]
 
     @staticmethod
-    def create_test_data_frame(
+    def create_data_frame(
         frame_data: frame_data.FrameData,
         version=1,
     ):
@@ -134,35 +127,53 @@ class DataHelper:
         if version == 1:
             new_data = pd.DataFrame(
                 {
-                    "P1 Health": [frame_data.p1_health],
-                    "P2 Health": [frame_data.p2_health],
-                    "health_diff": [frame_data.p1health - frame_data.p2_health],
+                    "P1 Health": [frame_data.p1_frame_data.health],
+                    "P2 Health": [frame_data.p2_frame_data.health],
+                    "health_diff": [
+                        frame_data.p1_frame_data.health
+                        - frame_data.p2_frame_data.health
+                    ],
                     "Time Remaining When Round Ended": [frame_data.time_remaining],
                     "Stage": [frame_data.stage],
-                    "Player 1 Rank": [frame_data.p1_rank],
-                    "Player 2 Rank": [frame_data.p2_rank],
-                    "rank_diff": [frame_data.p1_rank - frame_data.p2_rank],
-                    "P1 Rounds Won So Far": [frame_data.p1_rounds_won_so_far],
-                    "P2 Rounds Won So Far": [frame_data.p2_rounds_won_so_far],
+                    "Player 1 Rank": [frame_data.p1_frame_data.rank],
+                    "Player 2 Rank": [frame_data.p2_frame_data.rank],
+                    "rank_diff": [
+                        frame_data.p1_frame_data.rank - frame_data.p2_frame_data.rank
+                    ],
+                    "P1 Rounds Won So Far": [
+                        frame_data.p1_frame_data.rounds_won_so_far
+                    ],
+                    "P2 Rounds Won So Far": [
+                        frame_data.p2_frame_data.rounds_won_so_far
+                    ],
                 }
             )
         elif version == 2:
             new_data = pd.DataFrame(
                 {
-                    "P1 Health": [frame_data.p1_health],
-                    "P2 Health": [frame_data.p2_health],
-                    "health_diff": [frame_data.p1_health - frame_data.p2_health],
+                    "P1 Health": [frame_data.p1_frame_data.health],
+                    "P2 Health": [frame_data.p2_frame_data.health],
+                    "health_diff": [
+                        frame_data.p1_frame_data.health
+                        - frame_data.p2_frame_data.health
+                    ],
                     "Time Remaining When Round Ended": [frame_data.time_remaining],
                     "Stage": [frame_data.stage],
-                    "Player 1 Rank": [frame_data.p1_rank],
-                    "Player 2 Rank": [frame_data.p2_rank],
-                    "rank_diff": [frame_data.p1_rank - frame_data.p2_rank],
-                    "P1 Rounds Won So Far": [frame_data.p1_rounds_won_so_far],
-                    "P2 Rounds Won So Far": [frame_data.p2_rounds_won_so_far],
-                    "Shun.Drinks.1P": [frame_data.p1_drinks],
-                    "Shun.Drinks.2P": [frame_data.p2_drinks],
-                    "Player 1 Ringname": [frame_data.p1_ringname],
-                    "Player 2 Ringname": [frame_data.p2_ringname],
+                    "Player 1 Rank": [frame_data.p1_frame_data.rank],
+                    "Player 2 Rank": [frame_data.p2_frame_data.rank],
+                    "rank_diff": [
+                        frame_data.p1_frame_data.rank - frame_data.p2_frame_data.rank
+                    ],
+                    "P1 Rounds Won So Far": [
+                        frame_data.p1_frame_data.rounds_won_so_far
+                    ],
+                    "P2 Rounds Won So Far": [
+                        frame_data.p2_frame_data.rounds_won_so_far
+                    ],
+                    "Shun.Drinks.1P": [frame_data.p1_frame_data.drinks],
+                    "Shun.Drinks.2P": [frame_data.p2_frame_data.drinks],
+                    "Player 1 Ringname": [frame_data.p1_frame_data.ringname],
+                    "Player 2 Ringname": [frame_data.p2_frame_data.ringname],
                 }
             )
 
@@ -184,5 +195,9 @@ class DataHelper:
             new_data["p2_drinks_time"] = new_data["Shun.Drinks.2P"] * (
                 new_data["Time Remaining When Round Ended"].astype(int)
             )
+
+            del new_data["Player 1 Rank"]
+            del new_data["Player 2 Rank"]
+            del new_data["Time Remaining When Round Ended"]
 
         return new_data
