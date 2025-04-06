@@ -379,9 +379,6 @@ class WinProbabilityChart:
                 and frame["round_number"] != frame_data.iloc[index + 1]["round_number"]
                 and old_round_number != frame["round_number"]
             ):
-                print(
-                    f"{frame["round_number"]} {frame["Time Remaining When Round Ended"]}"
-                )
                 ax.axvline(x=(index * 0.2), color="black", linestyle="--", linewidth=1)
                 old_round_number = frame["round_number"]
             last_index = index
