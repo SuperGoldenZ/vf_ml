@@ -16,7 +16,12 @@ $ curl https://drive.google.com/file/d/1aXf81emse3jqE2f93-b_v-B3tGd2jn3d/view?us
 
 **2 - Train Using The Data**
 ```
-$ python demos/train_logic.py --filename="vf_match_data.csv.gz"
+$ python demos/train_logic.py --filename="vf_match_data.csv.gz" --predict="Match Winner"
 ```
 
 **3 - Test The Results**
+```
+PS> $env:PYTHONPATH = "$PWD"
+PS> python demos/win_probability_chart_demo.py --filename="match_data_0c0aca747594a91ba1d330acd5d609af.csv"
+PS> python demos/win_probability_chart_demo.py --filename="match_data_0a922e50f9f9a3e650e322dd3d96f0e5.csv"
+```
