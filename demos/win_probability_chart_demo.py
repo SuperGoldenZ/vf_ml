@@ -15,16 +15,8 @@ if not os.path.exists(filename):
     print(f"{filename} does not exist")
     exit(1)
 
-data = vf_ml.DataHelper.load_data(filename)
+data = vf_ml.DataHelper.load_data(filename, prepare_for_prediction=True)
 win_probability_chart = vf_ml.WinProbabilityChart()
-
-#win_probability_chart.generate_win_prob_chart_with_single_line(
-    #round_number=data["Player 2 Rank"].max(),
-    #stage=data["Stage"],
-    #frame_data=data,
-    #p1rank=data["Player 1 Rank"],
-    #p2rank=data["Player 2 Rank"],
-#)
 
 win_probability_chart.generate_match_win_prob_chart_with_single_line(
     round_number=data["Player 2 Rank"].max(),
