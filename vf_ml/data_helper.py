@@ -1,6 +1,7 @@
 """Class for processing VF data for machine learning"""
 
 import pandas as pd
+from line_profiler import profile
 from vf_ml import frame_data
 from sklearn.preprocessing import LabelEncoder
 
@@ -17,7 +18,7 @@ class DataHelper:
         return data
 
     @staticmethod
-    def load_data(filename="vf_match_data.csv"):
+    def load_data(filename="vf_match_data.csv", prepare_for_prediction=False):
         """Load and pre-process the data"""
 
         if ".gz" in filename:
@@ -50,7 +51,10 @@ class DataHelper:
             data["Time Remaining When Round Ended"].astype(int)
         )
 
-        data = DataHelper.encode(data)
+        if prepare_for_prediction:
+            data = DataHelper.create_data_frame(frame_data=None, version=2, df=data)
+        else:
+            data = DataHelper.encode(data)
         return data
 
     @staticmethod
@@ -118,13 +122,14 @@ class DataHelper:
         ]
 
     @staticmethod
+    @profile
     def create_data_frame(
         frame_data: frame_data.FrameData,
         version=1,
+        df: pd.DataFrame = None,
     ):
         """For creating a test frame"""
-
-        if version == 1:
+        if version == 1 and df is None:
             new_data = pd.DataFrame(
                 {
                     "P1 Health": [frame_data.p1_frame_data.health],
@@ -148,7 +153,7 @@ class DataHelper:
                     ],
                 }
             )
-        elif version == 2:
+        elif version == 2 and df is None:
             new_data = pd.DataFrame(
                 {
                     "P1 Health": [frame_data.p1_frame_data.health],
@@ -177,6 +182,9 @@ class DataHelper:
                 }
             )
 
+        if df is not None:
+            new_data = df
+
         new_data = DataHelper.encode(new_data, version)
         del new_data["Stage"]
 
@@ -184,9 +192,10 @@ class DataHelper:
             del new_data["Player 1 Ringname"]
             del new_data["Player 2 Ringname"]
 
-        new_data["health_time_interaction"] = [
-            new_data["health_diff"] * (45 - int(frame_data.time_remaining))
-        ]
+        if frame_data is not None:
+            new_data["health_time_interaction"] = [
+                new_data["health_diff"] * (45 - int(frame_data.time_remaining))
+            ]
 
         if version == 2:
             new_data["p1_drinks_time"] = new_data["Shun.Drinks.1P"] * (
@@ -195,9 +204,5 @@ class DataHelper:
             new_data["p2_drinks_time"] = new_data["Shun.Drinks.2P"] * (
                 new_data["Time Remaining When Round Ended"].astype(int)
             )
-
-            del new_data["Player 1 Rank"]
-            del new_data["Player 2 Rank"]
-            del new_data["Time Remaining When Round Ended"]
 
         return new_data
