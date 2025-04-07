@@ -197,6 +197,19 @@ class WinProbabilityChart:
         return (win_prob_player1, win_prob_player2)
 
     @profile
+    def get_match_win_probability(self, frame):
+        if self.match_model is None or self.round_model is None:
+            return (0.5, 0.5)
+
+        proba = self.match_model.predict_proba(
+            frame
+        )  # Predict probabilities for both classes
+
+        win_prob_player2 = proba[:, 1]  # Probability that Player 2 wins
+        win_prob_player1 = proba[:, 0]  # Probability that Player 1 wins
+        return (win_prob_player1, win_prob_player2)
+
+    @profile
     def generate_match_win_prob_chart_with_single_line(
         self,
         round_number,
@@ -228,27 +241,34 @@ class WinProbabilityChart:
         frame_data["id"] = range(len(frame_data))
         frame_ids: np.array = np.array([])
 
+        for_prob = frame_data.copy()
+        del for_prob["How Round Ended"]
+        del for_prob["Match Winner"]
+        del for_prob["Player 1 Character"]
+        del for_prob["Player 1 Rank"]
+        del for_prob["Player 2 Character"]
+        del for_prob["Player 2 Rank"]
+        del for_prob["Player 1 Ringname"]
+        del for_prob["Player 2 Ringname"]
+        del for_prob["Stage"]
+        del for_prob["Strike First Player"]
+        del for_prob["Time Remaining When Round Ended"]
+        del for_prob["Winning Player Number"]
+        del for_prob["id"]
+        del for_prob["round_number"]
+
+        for_prob = for_prob[self.match_model.feature_names_in_]
+        # print(self.match_model
+
         old_time_remaining = None
         num_rows = frame_data.shape[0]
-        for index, frame in frame_data.iterrows():
+        frame_data["elapsed_time"] = 45 - frame_data["Time Remaining When Round Ended"]
 
-            (win_prob_p1, win_prob_p2) = self.get_win_probability(
-                p1health=frame["P1 Health"],
-                p2health=frame["P2 Health"],
-                stage=stage,
-                time_remaining=frame["Time Remaining When Round Ended"],
-                p1rank=p1rank,
-                p2rank=p2rank,
-                p1rounds_won_so_far=p1rounds_won_so_far,
-                p2rounds_won_so_far=p2rounds_won_so_far,
-                p1drinks=frame["Shun.Drinks.1P"],
-                p2drinks=frame["Shun.Drinks.2P"],
-                match_probability=True,
-            )
-            # print(f"got win probability {win_prob_p1} {win_prob_p2}")
-            # exit()
+        for index, frame in frame_data.iterrows():
+            win_prob_p1 = self.get_match_win_probability(for_prob.loc[[index]])[0]
+
             win_prob = np.append(win_prob, win_prob_p1)
-            frame["elapsed_time"] = 45 - int(frame["Time Remaining When Round Ended"])
+
             last_time_digit = 45 - int(frame["Time Remaining When Round Ended"])
             time_remaining = np.append(
                 time_remaining, 45 - int(frame["Time Remaining When Round Ended"])
@@ -376,7 +396,6 @@ class WinProbabilityChart:
             if (
                 index < num_rows - 2
                 and frame["round_number"] > 0
-                and frame["round_number"] != frame_data.iloc[index + 1]["round_number"]
                 and old_round_number != frame["round_number"]
             ):
                 ax.axvline(x=(index * 0.2), color="black", linestyle="--", linewidth=1)
