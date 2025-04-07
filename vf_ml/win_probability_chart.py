@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import numpy as np
 import joblib
-import shutil
 import time
 import vf_ml.data_helper
 
@@ -381,14 +380,9 @@ class WinProbabilityChart:
 
         ax.axvline(x=(last_index * 0.2), color="black", linestyle="--", linewidth=1)
 
-        out_filename = "match_win_probability.png"
+        current_millis = int(time.time() * 1000)
+        out_filename = f"match_win_probability_{current_millis}.png"
         plt.savefig(out_filename, bbox_inches="tight", facecolor=(1, 1, 1, 0.55))
         plt.close(fig)
-
-        current_millis = int(time.time() * 1000)
-        shutil.move(
-            "match_win_probability.png",
-            f"win_prob_images/match_win_probability_{current_millis}.png",
-        )
 
         return out_filename
