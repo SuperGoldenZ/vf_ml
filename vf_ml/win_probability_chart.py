@@ -212,16 +212,9 @@ class WinProbabilityChart:
     @profile
     def generate_match_win_prob_chart_with_single_line(
         self,
-        round_number,
-        stage,
         frame_data,
-        p1rank,
-        p2rank,
-        frame_num=0,
-        save_to_file=True,
         p1character="",
         p2character="",
-        winner_player_number=None,
     ):
         last_time_digit = 45
         x = 0
@@ -242,25 +235,9 @@ class WinProbabilityChart:
         frame_ids: np.array = np.array([])
 
         for_prob = frame_data.copy()
-        del for_prob["How Round Ended"]
-        del for_prob["Match Winner"]
-        del for_prob["Player 1 Character"]
-        del for_prob["Player 1 Rank"]
-        del for_prob["Player 2 Character"]
-        del for_prob["Player 2 Rank"]
-        del for_prob["Player 1 Ringname"]
-        del for_prob["Player 2 Ringname"]
-        del for_prob["Stage"]
-        del for_prob["Strike First Player"]
-        del for_prob["Time Remaining When Round Ended"]
-        del for_prob["Winning Player Number"]
-        del for_prob["id"]
-        del for_prob["round_number"]
 
         for_prob = for_prob[self.match_model.feature_names_in_]
-        # print(self.match_model
 
-        old_time_remaining = None
         num_rows = frame_data.shape[0]
         frame_data["elapsed_time"] = 45 - frame_data["Time Remaining When Round Ended"]
 
