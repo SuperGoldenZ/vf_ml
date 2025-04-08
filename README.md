@@ -22,6 +22,6 @@ $ python demos/train_logic.py --filename="vf_match_data.csv.gz" --predict="Match
 **3 - Test The Results**
 ```
 PS> $env:PYTHONPATH = "$PWD"
-PS> python demos/win_probability_chart_demo.py --filename="match_data_0c0aca747594a91ba1d330acd5d609af.csv"
-PS> python demos/win_probability_chart_demo.py --filename="match_data_0a922e50f9f9a3e650e322dd3d96f0e5.csv"
+PS> python demos/win_probability_chart_demo.py --filename="match_data_0c0aca747594a91ba1d330acd5d609af.csv" --model_filename=models/logistic_regression_demo.pkl
+PS> python demos/win_probability_chart_demo.py --filename="match_data_0a922e50f9f9a3e650e322dd3d96f0e5.csv" --model_filename=models/logistic_regression_demo.pkl
 ```
