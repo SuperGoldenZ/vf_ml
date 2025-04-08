@@ -1,4 +1,5 @@
 import matplotlib
+import os
 
 matplotlib.use("Agg")
 
@@ -28,6 +29,7 @@ class WinProbabilityChart:
 
         self.match_model = joblib.load(match_model_filename)
         self.round_model = joblib.load(match_model_filename)
+        self.model_name = os.path.splitext(os.path.basename(match_model_filename))[0]
 
     def generate_win_prob_chart_with_single_line(
         self,
@@ -252,17 +254,19 @@ class WinProbabilityChart:
 
             temp_frame_count += 1
 
-            if (
-                frame["Winning Player Number"] == 1
-                and index < num_rows - 2
-                and (
-                    frame_data.iloc[index + 1]["round_number"] != frame["round_number"]
-                )
+            before_last_frame = (
+                index < num_rows - 2
+                and frame_data.iloc[index + 1]["round_number"] != frame["round_number"]
+            )
+            last_frame = index >= num_rows - 1
+
+            if frame["Winning Player Number"] == 1 and (
+                before_last_frame or last_frame
             ):
                 p1rounds_won_so_far += 1
                 finished_round_frame_count = temp_frame_count
                 ax.plot(
-                    [frame.id],
+                    [x],
                     [1],
                     "o",
                     color="#f12323",
@@ -270,17 +274,13 @@ class WinProbabilityChart:
                     label="Win!",
                 )  # Red dot at the top               i
 
-            if (
-                frame["Winning Player Number"] == 2
-                and index < num_rows - 2
-                and (
-                    frame_data.iloc[index + 1]["round_number"] != frame["round_number"]
-                )
+            if frame["Winning Player Number"] == 2 and (
+                before_last_frame or last_frame
             ):
                 p2rounds_won_so_far += 1
                 finished_round_frame_count = temp_frame_count
                 ax.plot(
-                    [frame.id],
+                    [x],
                     [0.05],
                     "o",
                     color="#2187ef",
@@ -369,7 +369,9 @@ class WinProbabilityChart:
         last_index = None
 
         for index, frame in frame_data.iterrows():
-            if (
+            if old_round_number is None:
+                old_round_number = frame["round_number"]
+            elif (
                 index < num_rows - 2
                 and frame["round_number"] > 0
                 and old_round_number != frame["round_number"]
@@ -381,7 +383,7 @@ class WinProbabilityChart:
         ax.axvline(x=(last_index * 0.2), color="black", linestyle="--", linewidth=1)
 
         current_millis = int(time.time() * 1000)
-        out_filename = f"match_win_probability_{current_millis}.png"
+        out_filename = f"win_probability_chart_{self.model_name}_{current_millis}.png"
         plt.savefig(out_filename, bbox_inches="tight", facecolor=(1, 1, 1, 0.55))
         plt.close(fig)
 
