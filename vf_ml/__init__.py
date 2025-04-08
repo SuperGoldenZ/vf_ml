@@ -11,3 +11,4 @@ __js_url__ = None
 from vf_ml.data_helper import DataHelper
 from vf_ml.frame_data import FrameData
 from vf_ml.player_frame_data import PlayerFrameData
+from vf_ml.win_probability_chart import WinProbabilityChart

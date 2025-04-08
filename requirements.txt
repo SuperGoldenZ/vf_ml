@@ -3,3 +3,5 @@ pytest
 pandas
 joblib
 scikit-learn
+matplotlib
+line-profiler
