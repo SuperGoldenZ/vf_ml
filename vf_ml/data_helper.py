@@ -205,4 +205,9 @@ class DataHelper:
                 new_data["Time Remaining When Round Ended"].astype(int)
             )
 
+        if version == 2 and df is None:
+            del new_data["Player 1 Rank"]
+            del new_data["Player 2 Rank"]
+            del new_data["Time Remaining When Round Ended"]
+
         return new_data
