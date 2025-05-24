@@ -30,6 +30,7 @@ class WinProbabilityChart:
         self.match_model = joblib.load(match_model_filename)
         self.round_model = joblib.load(match_model_filename)
         self.model_name = os.path.splitext(os.path.basename(match_model_filename))[0]
+        self.lookup = {}
 
     def generate_win_prob_chart_with_single_line(
         self,
@@ -54,20 +55,27 @@ class WinProbabilityChart:
         time_remaining: np.array = np.array([])
 
         for index, frame in frame_data.iterrows():
-            (frame["win_prob_player_1"], frame["win_prob_player_2"]) = (
-                self.get_win_probability(
-                    p1health=frame["P1 Health"],
-                    p2health=frame["P2 Health"],
-                    stage=stage,
-                    time_remaining=frame["Time Remaining When Round Ended"],
-                    p1rank=p1rank,
-                    p2rank=p2rank,
-                    p1rounds_won_so_far=p1rounds_won_so_far,
-                    p2rounds_won_so_far=p2rounds_won_so_far,
-                    p1drinks=frame["Shun.Drinks.1P"],
-                    p2drinks=frame["Shun.Drinks.2P"],
+            if index in self.lookup:
+                frame["win_prob_player_1"] = self.lookup[index][1]
+                frame["win_prob_player_2"] = self.lookup[index][2]
+            else:
+                self.lookup[index] = {}
+                (frame["win_prob_player_1"], frame["win_prob_player_2"]) = (
+                    self.get_win_probability(
+                        p1health=frame["P1 Health"],
+                        p2health=frame["P2 Health"],
+                        stage=stage,
+                        time_remaining=frame["Time Remaining When Round Ended"],
+                        p1rank=p1rank,
+                        p2rank=p2rank,
+                        p1rounds_won_so_far=p1rounds_won_so_far,
+                        p2rounds_won_so_far=p2rounds_won_so_far,
+                        p1drinks=frame["Shun.Drinks.1P"],
+                        p2drinks=frame["Shun.Drinks.2P"],
+                    )
                 )
-            )
+                self.lookup[index][1] = frame["win_prob_player_1"]
+                self.lookup[index][2] = frame["win_prob_player_2"]
 
             win_prob = np.append(win_prob, frame["win_prob_player_1"])
             frame["elapsed_time"] = 45 - int(frame["Time Remaining When Round Ended"])
@@ -184,7 +192,7 @@ class WinProbabilityChart:
         new_data = vf_ml.DataHelper.create_data_frame(frame_data=frame_data, version=2)
 
         if match_probability:
-            proba = self.match_model.predict_proba(
+            proba = self.match_model.prediccdt_proba(
                 new_data
             )  # Predict probabilities for both classes
         else:
@@ -216,6 +224,8 @@ class WinProbabilityChart:
         frame_data,
         p1character="",
         p2character="",
+        output_folder="./",
+        until_frame=None,
     ):
         last_time_digit = 45
         x = 0
@@ -243,7 +253,13 @@ class WinProbabilityChart:
         frame_data["elapsed_time"] = 45 - frame_data["Time Remaining When Round Ended"]
 
         for index, frame in frame_data.iterrows():
-            win_prob_p1 = self.get_match_win_probability(for_prob.loc[[index]])[0]
+            win_prob_p1 = None
+
+            if index in self.lookup:
+                win_prob_p1 = self.lookup[index]
+            else:
+                win_prob_p1 = self.get_match_win_probability(for_prob.loc[[index]])[0]
+                self.lookup[index] = win_prob_p1
 
             win_prob = np.append(win_prob, win_prob_p1)
 
@@ -294,6 +310,9 @@ class WinProbabilityChart:
             # frame.elapsed_time = 45 - int(frame.time_seconds_remaining)
             # last_time_digit = 45 - int(frame.time_seconds_remaining)
             last_win_prob_player_1 = win_prob_p1
+
+            if index == until_frame:
+                break
 
         # Extract time_remaining and win probabilities for Player 1 (used as win probability for the chart)
         # id_x_axis = frame_data["id"].to_numpy()
@@ -383,7 +402,7 @@ class WinProbabilityChart:
         ax.axvline(x=(last_index * 0.2), color="black", linestyle="--", linewidth=1)
 
         current_millis = int(time.time() * 1000)
-        out_filename = f"win_probability_chart_{self.model_name}_{current_millis}.png"
+        out_filename = f"{output_folder}win_probability_chart_{self.model_name}_{current_millis}.png"
         plt.savefig(out_filename, bbox_inches="tight", facecolor=(1, 1, 1, 0.55))
         plt.close(fig)
 
